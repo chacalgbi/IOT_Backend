@@ -1,6 +1,7 @@
 const API = require('../utils/API')
 const log = require('../utils/log')
 const DeviceModel = require('../models/devices')
+let status = 0
 
 class Device{
 
@@ -12,17 +13,19 @@ class Device{
 
         await DeviceModel.findAll()
         .then((res)=>{
+            status = 200
             isSucess = true
             retorno.msg = "Sucesso ao listar os Devices"
             retorno.dados = res
         })
         .catch((err)=>{
+            status = 500
             retorno.msg = "ERRO ao listar os Devices"
             retorno.dados = err
             console.error('\x1b[41m', err, '\x1b[0m')
         })
 
-        API(retorno, res, 200, isSucess)
+        API(retorno, res, status, isSucess)
     }
 
     // Inserir um Device
@@ -39,17 +42,19 @@ class Device{
             obs: req.body.obs,
         })
         .then((res)=>{
+            status = 200
             isSucess = true
             retorno.msg = "Device cadastrado com sucesso!"
             retorno.dados = res
         })
         .catch((err)=>{
+            status = 500
             retorno.msg = "ERRO ao cadastrar Device"
             retorno.dados = err
             console.error('\x1b[41m', err, '\x1b[0m')
         })
 
-        API(retorno, res, 200, isSucess);
+        API(retorno, res, status, isSucess);
     }
 
     // Atualiza um Device
@@ -62,6 +67,7 @@ class Device{
         await DeviceModel.findByPk(req.body.id)
         .then((res)=>{
             if(res === null){
+                status = 404
                 isSucess = false
                 retorno.msg = "Device não encontrado!"
             }else{
@@ -70,6 +76,7 @@ class Device{
             }
         })
         .catch((err)=>{
+            status = 500
             retorno.msg = "ERRO ao buscar ID do Device"
             retorno.dados = err
             console.error('\x1b[41m', err, '\x1b[0m')
@@ -89,6 +96,7 @@ class Device{
                 retorno.msg = "Sucesso ao atualizar o Device"
             })
             .catch((err)=>{
+                status = 500
                 isSucess = false
                 retorno.msg = "ERRO ao atualizar o Device"
                 retorno.dados = err
@@ -96,7 +104,7 @@ class Device{
             })
         }
 
-        API(retorno, res, 200, isSucess);
+        API(retorno, res, status, isSucess);
     }
 
     // Deleta um Device
@@ -108,22 +116,25 @@ class Device{
         await DeviceModel.destroy({ where: {id: req.params.id} })
         .then((res)=>{
             if(res === 0){
+                status = 404
                 retorno.msg = "Erro ao apagar. Id do Device não foi encontrado"
                 retorno.dados = res
                 isSucess = false               
             }else{
+                status = 200
                 retorno.msg = "Sucesso ao deletar o Device"
                 retorno.dados = res
                 isSucess = true
             }
         })
         .catch((err)=>{
+            status = 500
             retorno.msg = "ERRO ao deletar o Device"
             retorno.dados = err
             console.error('\x1b[41m', err, '\x1b[0m')
         })
 
-        API(retorno, res, 200, isSucess)
+        API(retorno, res, status, isSucess)
     }
 
     // Fazer login no Device
@@ -135,21 +146,24 @@ class Device{
         await DeviceModel.findAll({ where: { token: req.body.token } })
         .then((res)=>{
             if(res.length === 0){
+                status = 403
                 isSucess = false
                 retorno.msg = "Token inválido!"
             }else{
+                status = 200
                 isSucess = true
                 retorno.msg = "Acesso liberado!"
             }
             retorno.dados = res
         })
         .catch((err)=>{
+            status = 500
             retorno.msg = "ERRO ao fazer o login do Device."
             retorno.dados = err
             console.error('\x1b[41m', err, '\x1b[0m')
         })
 
-        API(retorno, res, 200, isSucess)
+        API(retorno, res, status, isSucess)
     }
 
 }
