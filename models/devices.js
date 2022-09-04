@@ -24,6 +24,10 @@ const Device = database.define('device', {
         type: Sequelize.STRING,
         allowNull: false
     },
+    pathUpdate: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
     obs: {
         type: Sequelize.STRING,
         allowNull: true

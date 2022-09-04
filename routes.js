@@ -5,6 +5,7 @@ const Clients  = require('./controllers/Clients')
 const routes = new Router()
 
 function testBody(req, res, next){
+    console.clear(); // Limpa o terminal sempre que chegar uma requisição (Bom para o desenvolvimento)
     if(Object.keys(req.body).length === 0){
         return res.status(422).json({
             error: true,
@@ -17,6 +18,7 @@ function testBody(req, res, next){
 }
 
 function testParams(req, res, next){
+    console.clear(); // Limpa o terminal sempre que chegar uma requisição (Bom para o desenvolvimento)
     if(Object.keys(req.params).length === 0){
         return res.status(422).json({
             error: true,
@@ -29,6 +31,7 @@ function testParams(req, res, next){
 }
 
 function testAdmin(req, res, next){
+    console.clear(); // Limpa o terminal sempre que chegar uma requisição (Bom para o desenvolvimento)
     //console.log(`${req.body.userAdmin} - ${req.body.passAdmin}`)
     if(req.body.userAdmin != process.env.USER_ADMIN){
         return res.status(422).json({
@@ -71,9 +74,12 @@ routes.delete('/channel_delete/:id',  testAdmin, testParams, Channels.delete) //
 
 //---------Ações do Device--------------
 routes.post('/device_login', testBody, Devices.login)                         // Fazer login no Device
+routes.post('/mqtt_info',    testBody, Devices.mqtt_info)                     // Obtém os dados de mqtt para a placa se conectar
 
 //---------Ações do Cliente--------------
 routes.post('/client_login', testBody, Clients.login)                         // Fazer login na página WEB ou APP
+routes.post('/devices_list', testBody, Devices.list)                          // Pega os Devices por ID do cliente
+routes.post('/channels_device_list', testBody, Channels.channels_list)        // Pega os Channels por ID do cliente
 
 
 
