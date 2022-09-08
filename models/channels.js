@@ -53,7 +53,7 @@ const Channels = database.define('channels', {
         allowNull: true
     },
     obs: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         allowNull: true
     }
 })

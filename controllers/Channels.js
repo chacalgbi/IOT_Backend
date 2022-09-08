@@ -34,6 +34,49 @@ class Channel {
         API(retorno, res, status, isSucess)
     }
 
+    // Limpa o campo OBS baseado no ID
+    async clear_log(req, res) {
+        log('Limpar OBS Channel', 'info')
+        let isSucess = false
+        let retorno = {}
+        let ChannelChange
+
+        await ChannelModel.findByPk(req.body.id_channel)
+            .then((res) => {
+                if (res === null) {
+                    isSucess = false
+                    retorno.msg = "Channel(log) não encontrado!"
+                } else {
+                    isSucess = true
+                    ChannelChange = res
+                }
+            })
+            .catch((err) => {
+                retorno.msg = "ERRO ao buscar ID do Channel"
+                retorno.dados = err
+                console.error('\x1b[41m', err, '\x1b[0m')
+            })
+
+        if (isSucess) {
+            ChannelChange.obs = ""
+
+            await ChannelChange.save()
+                .then((res) => {
+                    isSucess = true
+                    retorno.dados = res
+                    retorno.msg = "Sucesso ao Limpar"
+                })
+                .catch((err) => {
+                    isSucess = false
+                    retorno.msg = "ERRO ao limpar o LOG"
+                    retorno.dados = err
+                    console.error(err);
+                })
+        }
+
+        API(retorno, res, 200, isSucess);
+    }
+
     // Lista todos os Channels
     async index(req, res) {
         log('Listar Channels', 'info')
