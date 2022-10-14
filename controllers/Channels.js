@@ -213,5 +213,29 @@ class Channel {
         API(retorno, res, 200, isSucess)
     }
 
+    // Atualiza a coluna Previous State passando o ID do channel
+    async prev_state(req, res) {
+        log('Editar Previous State', 'info')
+        let isSucess = false
+        let retorno = {}
+
+        await ChannelModel.update({previous_state: req.body.previous_state}, { where: {id: req.body.id}})
+            .then((res) => {
+                if(res[0] === 1){
+                    isSucess = true
+                    retorno.msg = "Previous_state Atualizado!"
+                }else{
+                    retorno.msg = "Previous_state não Encontrado!"
+                }
+            })
+            .catch((err) => {
+                retorno.msg = "ERRO ao atualizar o previous state"
+                retorno.dados = err
+                console.error('\x1b[41m', err, '\x1b[0m')
+            })
+
+        API(retorno, res, 200, isSucess);
+    }
+
 }
 module.exports = new Channel();

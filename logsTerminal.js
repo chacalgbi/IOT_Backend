@@ -3,18 +3,18 @@ const log = require('./utils/log')
 const timer = require('./utils/dataHora')
 const ChannelModel = require('./models/channels')
 const mqtt = require('mqtt')
-const client = mqtt.connect('wss://narrowbane896:jhUlUA907SSh225C@narrowbane896.cloud.shiftr.io', { clientId: 'Server_Local' })
+const client = mqtt.connect('wss://narrowbane896:jhUlUA907SSh225C@narrowbane896.cloud.shiftr.io', { clientId: 'Server' })
 let ArrayAtivo = []
 
 async function channels_list(topic, message) {
-    log(`Procura Terminal ${topic}`, 'info')
+    log(`----3 - Procura Terminal ${topic}`, 'info')
 
     let sucesso = false
     let ChannelChange
     await ChannelModel.findAll({ where: { path: topic } })
         .then((res) => {
             if(res.length === 0){
-                console.log("Channel inválido!")
+                log("----4 - Channel inválido!", 'erro')
             }else{
                 ChannelChange = res[0]
                 sucesso = true
@@ -30,12 +30,12 @@ async function channels_list(topic, message) {
 
             await ChannelChange.save()
                 .then((res) => {
-                    console.log("Sucesso ao atualizar o Channel")
+                    log("----4 - Sucesso ao atualizar o Channel", 'info')
                 })
                 .catch((err) => {
-                    console.log("ERRO ao atualizar o Channel")
+                    log("----4 - ERRO ao atualizar o Channel", 'erro')
                     console.error(err)
-                })            
+                })
         }
 
 }
@@ -55,7 +55,7 @@ function aviso_placa_offline(topico, msg){
             a.func = setTimeout(() => {
                 const newTopic = topico.replace("ativo", "terminal_OUT")
                 const payload = `\n${timer()}Offline`
-                //console.log(`----------------------------${newTopic} - ${payload}`)
+                log(`----1 - ${topico} - Offline`, 'erro')
                 client.publish(newTopic, payload)
             }, 30000)
 
@@ -65,35 +65,37 @@ function aviso_placa_offline(topico, msg){
 
 function subscrever(terminais) {
     //client.end()
+
     client.on('connect', function () {
-
+        client.subscribe(terminais, function (err) {
+            if (!err) {
+                log("Subscrible feito com Sucesso!", 'info')
+                log('Lista de Inscrições feitas', 'alerta')
+                console.log(terminais)
+            }else{
+                console.log("Subscrible Erros: ", err)
+            }
+        })
     })
 
-    client.subscribe(terminais, function (err) {
-        if (!err) {
-            log("Subscrible feito com Sucesso!", 'temp')
-        }else{
-            console.log("Subscrible Erros: ", err)
-        }
-    })
 
     client.on('message', function (topic, message) {
         const topico = topic.toString()
         const msg = message.toString()
 
-        //console.log(topico)
-        //console.log(msg)
-
+        
         if(topico.includes("ativo")){
             aviso_placa_offline(topico, msg)
-        }else if(topico.includes("terminal_view")){
+        }else if(topico.includes("terminal_OUT")){
+            console.log(" ")
+            log(`----2 - Recebendo dados: ${topico}`, 'alerta')
             channels_list(topico, msg)
         }
     })
 }
 
 module.exports = async function logsTerminal() {
-    log('Listar Terminais Disponíveis', 'alerta')
+    log('Listar Terminais Disponíveis', 'info')
 
     await ChannelModel.findAll()
         .then((res) => {
@@ -106,6 +108,7 @@ module.exports = async function logsTerminal() {
 
                 //Guarda no array a lista path ativos
                 if(i.type === 'ativo'){
+                    //ArrayAtivo = [];
                     ArrayAtivo.push({ topico: i.path, func: null })
                 }
             })

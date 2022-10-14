@@ -75,12 +75,14 @@ routes.delete('/channel_delete/:id',  testAdmin, testParams, Channels.delete) //
 //---------Ações do Device--------------
 routes.post('/device_login', testBody, Devices.login)                         // Fazer login no Device
 routes.post('/mqtt_info',    testBody, Devices.mqtt_info)                     // Obtém os dados de mqtt para a placa se conectar
+routes.post('/alerta',       testAdmin, testBody, Devices.alerta)             // Envia um Alerta pelo WhatsApp
 
 //---------Ações do Cliente--------------
 routes.post('/client_login',         testBody, Clients.login)                 // Fazer login na página WEB ou APP
 routes.post('/devices_list',         testBody, Devices.list)                  // Pega os Devices por ID do cliente
 routes.post('/channels_device_list', testBody, Channels.channels_list)        // Pega os Channels por ID do cliente
 routes.post('/clear_log',            testBody, Channels.clear_log)            // Limpa o campo OBS do Channel que passou o ID
+routes.post('/prev_state',           testBody, Channels.prev_state)           // Atualiza o campo previous_state para recuperar após fechar e abrir a página
 routes.put('/alterar_senha',         testBody, Clients.alterar_senha)         // Alterar senha do cliente
 
 

@@ -5,6 +5,9 @@ const database = require('./dataBase')
 const logsTerminal = require('./logsTerminal')
 var cron = require('node-cron');
 
+//ssh -i "AWS_IOT.pem" ubuntu@ec2-18-230-130-11.sa-east-1.compute.amazonaws.com
+// thomelucas.com.br
+// 127.0.0.1
 
 async function testBD(){
 	let isConected = false
@@ -27,10 +30,10 @@ async function testBD(){
 		.then((res)=>{
 			log('Tabelas sincronizadas!', 'info')
 			logsTerminal()
-			cron.schedule('20 * * * *', () => {
-				log('Rodando a TASK a cada 20 minutos');
-				logsTerminal()
-			  });
+			//cron.schedule('3 * * * *', () => {
+			//	log('Rodando a TASK a cada 20 minutos');
+			//	logsTerminal()
+			//  });
 		})
 		.catch((erro)=>{
 			console.error('Erro ao sincronizar tabelas!', error)

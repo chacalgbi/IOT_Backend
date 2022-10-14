@@ -20,6 +20,10 @@ const Client = database.define('client', {
         type: Sequelize.STRING,
         allowNull: false
     },
+    cel: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
     address_mqtt: {
         type: Sequelize.STRING,
         allowNull: true
