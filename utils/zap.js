@@ -2,15 +2,13 @@ var venom = require("venom-bot")
 const dataHora = require('./dataHora')
 var clientEnvio
 
-venom.create({
-    session: 'IOT',
-    multidevice: true
-}).then(function (client){
+venom.create({session: 'IOT_Controller', multidevice: true}).then(function (client){
     clientEnvio = client
     client.onMessage( (message) => {
         clientEnvio = client
         if (message.isGroupMsg === false && message.body != undefined) {
-            //console.log(dataHora(),"Mensagem Recebida: ",message.body)
+            console.log(dataHora(),"Mensagem Recebida: ",message.body)
+            client.sendText(message.from, "Olá, sou um robô usado apenas para envio de Notificações do sistema thomelucas.com.br")
         }
     })
 })

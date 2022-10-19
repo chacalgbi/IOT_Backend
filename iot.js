@@ -1,13 +1,9 @@
 require('dotenv').config()
-const app = require('./app');
-const log   = require('./utils/log');
+const app = require('./app')
+const log   = require('./utils/log')
 const database = require('./dataBase')
 const logsTerminal = require('./logsTerminal')
-var cron = require('node-cron');
-
-//ssh -i "AWS_IOT.pem" ubuntu@ec2-18-230-130-11.sa-east-1.compute.amazonaws.com
-// thomelucas.com.br
-// 127.0.0.1
+var cron = require('node-cron')
 
 async function testBD(){
 	let isConected = false
