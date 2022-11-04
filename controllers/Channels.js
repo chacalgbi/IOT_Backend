@@ -11,7 +11,7 @@ class Channel {
         let isSucess = false
         let retorno = {}
 
-        await ChannelModel.findAll({ where: { client_id: req.body.client_id } })
+        await ChannelModel.findAll({ where: { client_id: req.body.client_id }, order: [ ['type', 'DESC'] ] })
             .then((res) => {
                 if (res.length === 0) {
                     status = 403

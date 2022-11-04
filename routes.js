@@ -73,9 +73,11 @@ routes.delete('/channel_delete/:id',  testAdmin, testParams, Channels.delete) //
 
 
 //---------Ações do Device--------------
-routes.post('/device_login', testBody, Devices.login)                         // Fazer login no Device
-routes.post('/mqtt_info',    testBody, Devices.mqtt_info)                     // Obtém os dados de mqtt para a placa se conectar
-routes.post('/alerta',       testAdmin, testBody, Devices.alerta)             // Envia um Alerta pelo WhatsApp
+routes.post('/device_login',   testBody, Devices.login)                         // Fazer login no Device
+routes.post('/mqtt_info',      testBody, Devices.mqtt_info)                     // Obtém os dados de mqtt para a placa se conectar
+routes.post('/alertaWhatsApp', testAdmin, testBody, Devices.alertaWhatsApp)     // Envia um Alerta pelo WhatsApp
+routes.post('/alertaTelegram', testAdmin, testBody, Devices.alertaTelegram)     // Envia um Alerta pelo Telegram
+routes.post('/alertaEmail',    testAdmin, testBody, Devices.alertaEmail)        // Envia um Alerta pelo Email
 
 //---------Ações do Cliente--------------
 routes.post('/client_login',         testBody, Clients.login)                 // Fazer login na página WEB ou APP

@@ -24,6 +24,26 @@ const Device = database.define('device', {
         type: Sequelize.STRING,
         allowNull: false
     },
+    tipo: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
+    celulares: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
+    emails: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
+    chat_id: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
+    linkAjuda: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
     pathUpdate: {
         type: Sequelize.STRING,
         allowNull: true

@@ -17,6 +17,7 @@
     "mqtt": "^4.3.7",
     "mysql2": "^2.3.3",
     "node-cron": "^3.0.2",
+    "node-telegram-bot-api": "^0.59.0",
     "nodemon": "^2.0.18",
     "sequelize": "^6.21.2",
     "venom-bot": "4.3.0"

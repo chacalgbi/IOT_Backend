@@ -54,7 +54,8 @@ function aviso_placa_offline(topico, msg){
             // Seta de novo o TimeOut, caso a placa fique Offline, essa função dentro vai executar
             a.func = setTimeout(() => {
                 const newTopic = topico.replace("ativo", "terminal_OUT")
-                const payload = `\n${timer()}Offline`
+                const dateFormated = timer().replace(/\//g, '\\').split(':')
+                const payload = `${dateFormated[0]}:${dateFormated[1]} OffLine`
                 log(`----1 - ${topico} - Offline`, 'erro')
                 client.publish(newTopic, payload)
             }, 30000)

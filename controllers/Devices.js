@@ -2,7 +2,8 @@ const API = require('../utils/API')
 const log = require('../utils/log')
 const DeviceModel = require('../models/devices')
 const ClientModel = require('../models/clients')
-const alertaZap = require('../utils/zap')
+//const alertaZap = require('../utils/zap')
+const alertaTelegram = require('../utils/telegram')
 let status = 0
 
 class Device {
@@ -235,7 +236,7 @@ class Device {
     }
 
     // Envia um Alerta pelo WhatsApp
-    async alerta(req, res) {
+    async alertaWhatsApp(req, res) {
         log(`Alerta WhatsApp`, 'info')
         let isSucess = false
         let retorno = {}
@@ -244,20 +245,56 @@ class Device {
 
         for (const [index, itemCel] of arrayCel.entries()) {
             let cel  = String("55" + itemCel + "@c.us")
-            await alertaZap(cel, req.body.msg)
-            .then((res) => {
-                numeros ++
-                status = 200
-                isSucess = true
-                retorno.msg = res
-            })
-            .catch((err) => {
-                status = 500
-                retorno.msg = err
-            })
+            // await alertaZap(cel, req.body.msg)
+            // .then((res) => {
+            //     numeros ++
+            //     status = 200
+            //     isSucess = true
+            //     retorno.msg = res
+            // })
+            // .catch((err) => {
+            //     status = 500
+            //     retorno.msg = err
+            // })
         }
 
-        retorno.envios = `Enviado p ${numeros} cels`
+        retorno.envios = `Enviado para ${numeros} WhatsApps`
+        API(retorno, res, status, isSucess)
+    }
+
+    // Envia um Alerta pelo Telegram
+    async alertaTelegram(req, res) {
+        log(`Alerta Telegram`, 'info')
+        let isSucess = false
+        let retorno = {}
+
+        await alertaTelegram(req.body.chat_id, req.body.msg)
+        .then((res) => {
+            status = 200
+            isSucess = true
+            retorno.msg = res
+        })
+        .catch((err) => {
+            status = 500
+            retorno.msg = err
+        })
+
+        API(retorno, res, status, isSucess)
+    }
+
+    // Envia um Alerta para Emails
+    async alertaEmail(req, res) {
+        log(`Alerta Email`, 'info')
+        let isSucess = false
+        let retorno = {}
+        let arrayEmails = req.body.emails.split('-')
+        let numeros = 0
+
+        for (const [index, itemEmail] of arrayEmails.entries()) {
+
+        }
+
+        retorno.envios = `Enviado para ${numeros} emails`
         API(retorno, res, status, isSucess)
     }
 
