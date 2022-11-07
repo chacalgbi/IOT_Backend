@@ -2,8 +2,9 @@ const API = require('../utils/API')
 const log = require('../utils/log')
 const DeviceModel = require('../models/devices')
 const ClientModel = require('../models/clients')
-//const alertaZap = require('../utils/zap')
+//const alertaZap = require('../utils/whatsApp')
 const alertaTelegram = require('../utils/telegram')
+const alertaMail = require('../utils/email')
 let status = 0
 
 class Device {
@@ -287,14 +288,18 @@ class Device {
         log(`Alerta Email`, 'info')
         let isSucess = false
         let retorno = {}
-        let arrayEmails = req.body.emails.split('-')
-        let numeros = 0
 
-        for (const [index, itemEmail] of arrayEmails.entries()) {
+        await alertaMail(req.body.email.toLowerCase(), req.body.titulo, req.body.corpo).then((resp) => {
+            isSucess = true
+            status = 200
+            retorno.msg = "Envio Email OK"
+        })
+        .catch((err) => {
+            status = 500
+            console.error(err.response)
+            retorno.msg = `EmailErro: ${err.response}`
+        })
 
-        }
-
-        retorno.envios = `Enviado para ${numeros} emails`
         API(retorno, res, status, isSucess)
     }
 
