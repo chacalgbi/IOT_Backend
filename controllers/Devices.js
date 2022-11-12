@@ -2,7 +2,7 @@ const API = require('../utils/API')
 const log = require('../utils/log')
 const DeviceModel = require('../models/devices')
 const ClientModel = require('../models/clients')
-//const alertaZap = require('../utils/whatsApp')
+const alertaZap = require('../utils/whatsApp')
 const alertaTelegram = require('../utils/telegram')
 const alertaMail = require('../utils/email')
 let status = 0
@@ -241,25 +241,18 @@ class Device {
         log(`Alerta WhatsApp`, 'info')
         let isSucess = false
         let retorno = {}
-        let arrayCel = req.body.cel.split('-')
-        let numeros = 0
+        const cel  = String("55" + req.body.cel + "@c.us")
+        await alertaZap(cel, req.body.msg)
+        .then((res) => {
+            status = 200
+            isSucess = true
+            retorno.msg = res
+        })
+        .catch((err) => {
+            status = 500
+            retorno.msg = err
+        })
 
-        for (const [index, itemCel] of arrayCel.entries()) {
-            let cel  = String("55" + itemCel + "@c.us")
-            // await alertaZap(cel, req.body.msg)
-            // .then((res) => {
-            //     numeros ++
-            //     status = 200
-            //     isSucess = true
-            //     retorno.msg = res
-            // })
-            // .catch((err) => {
-            //     status = 500
-            //     retorno.msg = err
-            // })
-        }
-
-        retorno.envios = `Enviado para ${numeros} WhatsApps`
         API(retorno, res, status, isSucess)
     }
 

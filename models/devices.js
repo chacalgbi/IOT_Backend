@@ -28,15 +28,7 @@ const Device = database.define('device', {
         type: Sequelize.STRING,
         allowNull: true
     },
-    celulares: {
-        type: Sequelize.STRING,
-        allowNull: true
-    },
-    emails: {
-        type: Sequelize.STRING,
-        allowNull: true
-    },
-    chat_id: {
+    versao: {
         type: Sequelize.STRING,
         allowNull: true
     },
