@@ -1,6 +1,11 @@
 const API = require('../utils/API')
 const log = require('../utils/log')
+const encript = require('../utils/encript')
+const decript = require('../utils/decript')
+var jwt = require('jsonwebtoken')
+const rotas = require('../utils/nome_rotas')
 const ClientModel = require('../models/clients')
+
 
 class Client {
 
@@ -30,11 +35,13 @@ class Client {
         log('Criar Cliente', 'info')
         let isSucess = false
         let retorno = {}
+        let codStatus = 200
 
         await ClientModel.create({
             name: req.body.name,
             email: req.body.email,
-            pass: req.body.pass,
+            pass: encript(req.body.pass),
+            cel: req.body.cel,
             address_mqtt: req.body.address_mqtt,
             obs: req.body.obs,
         })
@@ -42,14 +49,16 @@ class Client {
                 isSucess = true
                 retorno.msg = "Cliente cadastrado com sucesso!"
                 retorno.dados = res
+                retorno.dados.pass = ""
             })
             .catch((err) => {
                 retorno.msg = "ERRO ao cadastrar Cliente"
                 retorno.dados = err
+                codStatus = 500
                 console.error('\x1b[41m', err, '\x1b[0m')
             })
 
-        API(retorno, res, 200, isSucess);
+        API(retorno, res, codStatus, isSucess);
     }
 
     // Atualiza um Cliente
@@ -57,6 +66,7 @@ class Client {
         log('Editar Cliente', 'info')
         let isSucess = false
         let retorno = {}
+        let codStatus = 200
         let ClientChange
 
         await ClientModel.findByPk(req.body.id)
@@ -64,21 +74,30 @@ class Client {
                 if (res === null) {
                     isSucess = false
                     retorno.msg = "Cliente não encontrado!"
+                    codStatus = 404
                 } else {
-                    isSucess = true
-                    ClientChange = res
+                    if(decript(req.body.old_pass, res.pass)){
+                        isSucess = true
+                        ClientChange = res
+                    }else{
+                        isSucess = false
+                        retorno.msg = "Password anterior é inválido"
+                        codStatus = 401
+                    }
                 }
             })
             .catch((err) => {
                 retorno.msg = "ERRO ao buscar ID do Cliente"
                 retorno.dados = err
+                codStatus = 500
                 console.error('\x1b[41m', err, '\x1b[0m')
             })
 
         if (isSucess) {
             ClientChange.name = req.body.name
             ClientChange.email = req.body.email
-            ClientChange.pass = req.body.pass
+            ClientChange.pass = encript(req.body.pass)
+            ClientChange.cel = req.body.cel
             ClientChange.address_mqtt = req.body.address_mqtt
             ClientChange.obs = req.body.obs
 
@@ -86,17 +105,19 @@ class Client {
                 .then((res) => {
                     isSucess = true
                     retorno.dados = res
+                    retorno.dados.pass = ""
                     retorno.msg = "Sucesso ao atualizar o Cliente"
                 })
                 .catch((err) => {
                     isSucess = false
                     retorno.msg = "ERRO ao atualizar o Cliente"
+                    codStatus = 500
                     retorno.dados = err
-                    console.error(err);
+                    console.error(err)
                 })
         }
 
-        API(retorno, res, 200, isSucess);
+        API(retorno, res, codStatus, isSucess)
     }
 
     // Deleta um Cliente
@@ -128,28 +149,40 @@ class Client {
 
     // Fazer login na página WEB ou APP
     async login(req, res) {
-        log(`Logando Cliente`, 'info')
+        log(`Logando Cliente ${req.body.email}`, 'info')
         let isSucess = false
+        let codStatus = 200
         let retorno = {}
 
-        await ClientModel.findAll({ where: { email: req.body.email, pass: req.body.pass } })
+        await ClientModel.findAll({ where: { email: req.body.email } })
             .then((res) => {
                 if (res.length === 0) {
                     isSucess = false
-                    retorno.msg = "Usuário ou senha inválidos!"
+                    codStatus = 404
+                    retorno.msg = "Usuário inválido!"
                 } else {
-                    isSucess = true
-                    retorno.msg = "Acesso liberado!"
+                    if(decript(req.body.pass, res[0].pass)){
+                        isSucess = true
+                        retorno.msg = "Acesso liberado!"
+                        retorno.token = jwt.sign({ id: res[0].id }, process.env.SECRET, {expiresIn: 120 }) // 86400 segundos = 24horas
+                        retorno.dados = res[0]
+                        retorno.dados.pass = ""
+                        retorno.rotas = rotas
+                    }else{
+                        isSucess = false
+                        retorno.msg = "Password inválido"
+                        codStatus = 401
+                    }
                 }
-                retorno.dados = res
             })
             .catch((err) => {
                 retorno.msg = "ERRO ao fazer o login."
                 retorno.dados = err
+                codStatus = 500
                 console.error('\x1b[41m', err, '\x1b[0m')
             })
 
-        API(retorno, res, 200, isSucess)
+        API(retorno, res, codStatus, isSucess)
     }
 
     // Alterar senha
@@ -158,42 +191,51 @@ class Client {
         let isSucess = false
         let retorno = {}
         let ClientChange
+        let codStatus = 200
 
         await ClientModel.findByPk(req.body.id)
             .then((res) => {
-                if (res.length === 0) {
+                if (res === null) {
                     isSucess = false
-                    retorno.msg = "Usuário ou senha inválidos!"
-                    retorno.dados = res
+                    retorno.msg = "Cliente não encontrado!"
+                    codStatus = 404
                 } else {
-                    isSucess = true
-                    ClientChange = res
+                    if(decript(req.body.old_pass, res.pass)){
+                        isSucess = true
+                        ClientChange = res
+                    }else{
+                        isSucess = false
+                        retorno.msg = "Password anterior é inválido"
+                        codStatus = 401
+                    }
                 }
             })
             .catch((err) => {
                 retorno.msg = "ERRO ao alterar a senha."
                 retorno.dados = err
+                codStatus = 500
                 console.error('\x1b[41m', err, '\x1b[0m')
             })
 
         if (isSucess) {
-            ClientChange.pass = req.body.newPass
+            ClientChange.pass = encript(req.body.newPass)
 
             await ClientChange.save()
                 .then((res) => {
                     isSucess = true
                     retorno.dados = res
+                    retorno.dados.pass = ""
                     retorno.msg = "Sucesso ao mudar a senha!"
                 })
                 .catch((err) => {
                     isSucess = false
                     retorno.msg = "ERRO ao atualizar a senha"
                     retorno.dados = err
-                    console.error(err);
+                    console.error(err)
                 })
         }
 
-        API(retorno, res, 200, isSucess)
+        API(retorno, res, codStatus, isSucess)
     }
 
 }

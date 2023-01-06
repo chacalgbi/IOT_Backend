@@ -38,7 +38,13 @@ async function testBD(){
 	}
 }
 
+app.get('/',  (req, res, next)=>{res.status(200).json({message: 'Nada aqui para ver...'})})
+app.post('/', (req, res, next)=>{res.status(200).json({message: 'Nada aqui para ver...'})})
+
+//Caso acesse alguma rota que não existe
+app.use((req, res, next)=> { res.status(404).json({message: 'Esta rota não existe'})})
+
 app.listen(process.env.API_PORT, () => {
     log(`API - IOT Devices - Porta: ${process.env.API_PORT}`, 'alerta');
     testBD();
-});
+})

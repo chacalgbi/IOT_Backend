@@ -43,6 +43,7 @@ build/Release
 node_modules/
 jspm_packages/
 tokens/
+utils/nome_rotas.js
 
 # TypeScript v1 declaration files
 typings/

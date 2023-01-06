@@ -72,7 +72,7 @@ function subscrever(terminais) {
             if (!err) {
                 log("Subscrible feito com Sucesso!", 'info')
                 log('Lista de Inscrições feitas', 'alerta')
-                console.log(terminais)
+                //console.log(terminais)
             }else{
                 console.log("Subscrible Erros: ", err)
             }

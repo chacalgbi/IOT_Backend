@@ -2,42 +2,6 @@
 const TelegramBot = require('node-telegram-bot-api')
 const token = process.env.TOKEN_BOT
 const bot = new TelegramBot(token, { polling: true }) // Cria um bot que usa 'polling' para buscar novas atualizações
-const DeviceModel = require('../models/devices')
-
-function cadastrarChatId(token, chat_id){
-    const arrayToken = token.split(':')
-    return new Promise((resolve,reject)=>{
-        DeviceModel.update({chat_id: chat_id}, { where: {token: arrayToken[1]}})
-        .then((res) => {
-            if(res[0] === 1){
-                resolve("Seu SmartPhone foi CADASTRADO para receber notificações! Habilite essa função no seu dispositivo")
-            }else{
-                resolve("Este token não foi encontrado no banco de dados. Consulte seu vendedor para que ele possa cadastrar.")
-            }
-        })
-        .catch((err) => {
-            reject("Erro ao cadastrar:", err)
-        })
-
-    })
-}
-
-function removerChatId(token){
-    const arrayToken = token.split(':')
-    return new Promise((resolve,reject)=>{
-        DeviceModel.update({chat_id: ""}, { where: {token: arrayToken[1]}})
-        .then((res) => {
-            if(res[0] === 1){
-                resolve("Seu SmartPhone foi REMOVIDO e não receberá notificações! Caso queira receber novamente, refaça o cadastro.")
-            }else{
-                resolve("Este token não foi encontrado no banco de dados. Consulte seu vendedor para que ele possa cadastrar.")
-            }
-        })
-        .catch((err) => {
-            reject("Erro ao remover:", err)
-        })
-    })
-}
 
 bot.on('message', async (msg) => {
     const chatId = msg.chat.id
@@ -56,29 +20,15 @@ bot.on('message', async (msg) => {
         }
         setTimeout(() => { bot.sendMessage(chatId, resp, opts) }, 500)
     }else if(text.substring(0, 10) === 'sim:monit_'){
-        resp = "Cadastrando seu SmartPhone..."
-        setTimeout(() => { bot.sendMessage(chatId, resp, {"reply_markup": {remove_keyboard: true} }) }, 100)
-        await cadastrarChatId(text, chatId).then((res) => {
-            setTimeout(() => { bot.sendMessage(chatId, res) }, 2000)  
-        })
-        .catch((err) => {
-            setTimeout(() => { bot.sendMessage(chatId, err) }, 2000) 
-        })
+        resp = "Pronto! Agora é só copiar o código abaixo e inserir nas configurações do seu dispositivo acessando a página web e indo na aba 'Config'."
+        setTimeout(() => { bot.sendMessage(chatId, resp, {"reply_markup": {remove_keyboard: true} }) }, 500)
+        setTimeout(() => { bot.sendMessage(chatId, `${chatId}`) }, 1500)
     }else if(text === 'não, está errado'){
         resp = "Digite novamente o token do seu dispositivo."
         setTimeout(() => { bot.sendMessage(chatId, resp, {"reply_markup": {remove_keyboard: true} }) }, 100)
     }else if(text === 'cancelar cadastro'){
         resp = "Quando precisar, volte aqui para cadastrar seu SmartPhone para receber notificações."
         setTimeout(() => { bot.sendMessage(chatId, resp, {"reply_markup": {remove_keyboard: true} }) }, 100)
-    }else if(text.substring(0, 13) === 'delete:monit_'){
-        resp = "Removendo seu SmartPhone do cadastro de recebimento de alertas..."
-        setTimeout(() => { bot.sendMessage(chatId, resp) }, 100)
-        await removerChatId(text).then((res) => {
-            setTimeout(() => { bot.sendMessage(chatId, res) }, 2000)
-        })
-        .catch((err) => {
-            setTimeout(() => { bot.sendMessage(chatId, err) }, 2000)
-        })
     }
 
 })

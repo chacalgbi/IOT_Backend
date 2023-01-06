@@ -2,10 +2,20 @@ const API = require('../utils/API')
 const log = require('../utils/log')
 const DeviceModel = require('../models/devices')
 const ClientModel = require('../models/clients')
-const alertaZap = require('../utils/whatsApp')
-const alertaTelegram = require('../utils/telegram')
+//const alertaZap = require('../utils/whatsApp')
+//const alertaTelegram = require('../utils/telegram')
 const alertaMail = require('../utils/email')
 let status = 0
+
+String.prototype.replaceAt = function (index, replacement) {
+    if (index >= this.length) {
+        return this.valueOf()
+    }
+  
+    var chars = this.split('')
+    chars[index] = replacement
+    return chars.join('')
+  }
 
 class Device {
 
@@ -43,6 +53,9 @@ class Device {
             description: req.body.description,
             device: req.body.device,
             token: req.body.token,
+            tipo: req.body.tipo,
+            versao: req.body.versao,
+            linkAjuda: req.body.ajuda,
             pathUpdate: req.body.pathUpdate,
             obs: req.body.obs,
         })
@@ -92,6 +105,9 @@ class Device {
             DeviceChange.description = req.body.description
             DeviceChange.device = req.body.device
             DeviceChange.token = req.body.token
+            DeviceChange.tipo = req.body.tipo
+            DeviceChange.versao = req.body.versao
+            DeviceChange.linkAjuda = req.body.ajuda
             DeviceChange.pathUpdate = req.body.pathUpdate
             DeviceChange.obs = req.body.obs
 
@@ -180,16 +196,20 @@ class Device {
 
         await DeviceModel.findAll({ where: { client_id: req.body.id_client } })
             .then((res) => {
-                if (res.length === 0) {
-                    status = 403
+                if (res === null) {
                     isSucess = false
-                    retorno.msg = "Cliente inválido!"
+                    retorno.msg = "Cliente não encontrado!"
+                    codStatus = 404
+                }else if (res.length === 0) {
+                    status = 204
+                    isSucess = false
+                    retorno.msg = "Cliente sem Devices!"
                 } else {
                     status = 200
                     isSucess = true
                     retorno.msg = " Confira seus devices abaixo!"
+                    retorno.dados = res
                 }
-                retorno.dados = res
             })
             .catch((err) => {
                 status = 500
@@ -197,6 +217,25 @@ class Device {
                 retorno.dados = err
                 console.error('\x1b[41m', err, '\x1b[0m')
             })
+
+        if(isSucess){
+            await ClientModel.findAll({ where: { id: retorno.dados[0].client_id } })
+            .then((res) => {
+                if (res.length === 0) {
+                    isSucess = false
+                } else {
+                    status = 200
+                    isSucess = true
+                    retorno.client = res[0]
+
+                }
+            })
+            .catch((err) => {
+                status = 500
+                retorno.dados = err
+                console.error('\x1b[41m', err, '\x1b[0m')
+            })
+        }
 
         API(retorno, res, status, isSucess)
     }
@@ -235,23 +274,33 @@ class Device {
 
         API(retorno, res, status, isSucess)
     }
-
+/*
     // Envia um Alerta pelo WhatsApp
     async alertaWhatsApp(req, res) {
         log(`Alerta WhatsApp`, 'info')
         let isSucess = false
         let retorno = {}
-        const cel  = String("55" + req.body.cel + "@c.us")
-        await alertaZap(cel, req.body.msg)
-        .then((res) => {
-            status = 200
-            isSucess = true
-            retorno.msg = res
-        })
-        .catch((err) => {
-            status = 500
-            retorno.msg = err
-        })
+        let arrayCel = req.body.cel.split('')
+
+        if(arrayCel[2] != '9' && req.body.cel.length != 11){
+            retorno.msg = `Cel invalido!\n${req.body.cel}`
+            console.log(retorno.msg)
+            status = 422 // parametro do tipo certo, mas conteúdo incorreto
+        }else{
+            const sem_o_Nove = req.body.cel.replaceAt(2, '') // depois da atualização do Venon, só vai sem o 9
+            const cel  = String("55" + sem_o_Nove + "@c.us")
+            await alertaZap(cel, req.body.msg)
+            .then((res) => {
+                status = 200
+                isSucess = true
+                retorno.msg = "OK"
+                retorno.payload = res
+            })
+            .catch((err) => {
+                status = 500
+                retorno.msg = err
+            })
+        }
 
         API(retorno, res, status, isSucess)
     }
@@ -263,19 +312,19 @@ class Device {
         let retorno = {}
 
         await alertaTelegram(req.body.chat_id, req.body.msg)
-        .then((res) => {
-            status = 200
-            isSucess = true
-            retorno.msg = res
-        })
-        .catch((err) => {
-            status = 500
-            retorno.msg = err
-        })
+            .then((res) => {
+                status = 200
+                isSucess = true
+                retorno.msg = res
+            })
+            .catch((err) => {
+                status = 500
+                retorno.msg = err
+            })
 
         API(retorno, res, status, isSucess)
     }
-
+*/
     // Envia um Alerta para Emails
     async alertaEmail(req, res) {
         log(`Alerta Email`, 'info')
@@ -287,13 +336,37 @@ class Device {
             status = 200
             retorno.msg = "Envio Email OK"
         })
-        .catch((err) => {
-            status = 500
-            console.error(err.response)
-            retorno.msg = `EmailErro: ${err.response}`
-        })
+            .catch((err) => {
+                status = 500
+                console.error(err.response)
+                retorno.msg = `EmailErro: ${err.response}`
+            })
 
         API(retorno, res, status, isSucess)
+    }
+
+    // Alterar nome do Device
+    async mudarNomeDevice(req, res) {
+        log('Alterar nome do Device', 'info')
+        let isSucess = false
+        let retorno = {}
+
+        await DeviceModel.update({ description:req.body.description }, { where: { id: req.body.id } })
+        .then((res) => {
+            if (res[0] === 1) {
+                isSucess = true
+                retorno.msg = "Nome do dispositivo atualizado!"
+            } else {
+                retorno.msg = "Dispositivo não encontrado!"
+            }
+        })
+        .catch((err) => {
+            retorno.msg = "ERRO ao atualizar o dispositivo"
+            retorno.dados = err
+            console.error('\x1b[41m', err, '\x1b[0m')
+        })
+
+        API(retorno, res, 200, isSucess);
     }
 
 }

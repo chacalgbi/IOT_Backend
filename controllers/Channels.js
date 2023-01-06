@@ -223,7 +223,7 @@ class Channel {
             .then((res) => {
                 if(res[0] === 1){
                     isSucess = true
-                    retorno.msg = "Previous_state Atualizado!"
+                    retorno.msg = "Previous_state Atualizado. ID: " + req.body.id
                 }else{
                     retorno.msg = "Previous_state não Encontrado!"
                 }
