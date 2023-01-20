@@ -164,7 +164,7 @@ class Client {
                     if(decript(req.body.pass, res[0].pass)){
                         isSucess = true
                         retorno.msg = "Acesso liberado!"
-                        retorno.token = jwt.sign({ id: res[0].id }, process.env.SECRET, {expiresIn: 120 }) // 86400 segundos = 24horas
+                        retorno.token = jwt.sign({ id: res[0].id }, process.env.SECRET, {expiresIn: process.env.JWT_EXPIRES_IN })
                         retorno.dados = res[0]
                         retorno.dados.pass = ""
                         retorno.rotas = rotas
@@ -205,7 +205,7 @@ class Client {
                         ClientChange = res
                     }else{
                         isSucess = false
-                        retorno.msg = "Password anterior é inválido"
+                        retorno.msg = "Senha anterior é inválida"
                         codStatus = 401
                     }
                 }
@@ -219,6 +219,7 @@ class Client {
 
         if (isSucess) {
             ClientChange.pass = encript(req.body.newPass)
+            ClientChange.email = req.body.newUser
 
             await ClientChange.save()
                 .then((res) => {

@@ -6,15 +6,9 @@ var jwt = require('jsonwebtoken')
 const routes = new Router()
 
 function verifyToken(req, res, next) {
-    const dominio = "thomelucas.com.br"
-    //const dominio = "127.0.0.1"
-    let domain = req.headers.host.split(":")[0]
     let token = req.headers['x-access-token']
-    console.log(domain)
 
-    /*if(domain !== dominio){
-        return res.status(401).json({ auth: false, message: `Dominio '${domain}' desconhecido.` })
-    }else*/ if (!token) {
+    if (!token) {
         return res.status(401).json({ auth: false, message: "Nenhum token informado.", error: {message: "Token Ausente", name: "Token null"} })
     }else{
         jwt.verify(token, process.env.SECRET, function(err, decoded) {
@@ -93,12 +87,11 @@ routes.put   ('/channel_update',      testAdmin, testBody,   Channels.update) //
 routes.delete('/channel_delete/:id',  testAdmin, testParams, Channels.delete) // Deleta um Channel
 
 
-
 //---------Ações do Device--------------
 routes.post('/device_login',   testBody, Devices.login)                         // Fazer login no Device
 routes.post('/mqtt_info',      testBody, Devices.mqtt_info)                     // Obtém os dados de mqtt para a placa se conectar
-//routes.post('/alertaWhatsApp', testAdmin, testBody, Devices.alertaWhatsApp)     // Envia um Alerta pelo WhatsApp
-//routes.post('/alertaTelegram', testAdmin, testBody, Devices.alertaTelegram)     // Envia um Alerta pelo Telegram
+routes.post('/alertaWhatsApp', testAdmin, testBody, Devices.alertaWhatsApp)     // Envia um Alerta pelo WhatsApp
+routes.post('/alertaTelegram', testAdmin, testBody, Devices.alertaTelegram)     // Envia um Alerta pelo Telegram
 routes.post('/alertaEmail',    testAdmin, testBody, Devices.alertaEmail)        // Envia um Alerta pelo Email
 
 //---------Ações do Cliente--------------

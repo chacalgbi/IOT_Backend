@@ -2,8 +2,8 @@ const API = require('../utils/API')
 const log = require('../utils/log')
 const DeviceModel = require('../models/devices')
 const ClientModel = require('../models/clients')
-//const alertaZap = require('../utils/whatsApp')
-//const alertaTelegram = require('../utils/telegram')
+const alertaZap = require('../utils/whatsApp')
+const alertaTelegram = require('../utils/telegram')
 const alertaMail = require('../utils/email')
 let status = 0
 
@@ -227,6 +227,7 @@ class Device {
                     status = 200
                     isSucess = true
                     retorno.client = res[0]
+                    retorno.client.pass = ""
 
                 }
             })
@@ -274,7 +275,7 @@ class Device {
 
         API(retorno, res, status, isSucess)
     }
-/*
+
     // Envia um Alerta pelo WhatsApp
     async alertaWhatsApp(req, res) {
         log(`Alerta WhatsApp`, 'info')
@@ -324,7 +325,7 @@ class Device {
 
         API(retorno, res, status, isSucess)
     }
-*/
+
     // Envia um Alerta para Emails
     async alertaEmail(req, res) {
         log(`Alerta Email`, 'info')
