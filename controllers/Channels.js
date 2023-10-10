@@ -215,7 +215,7 @@ class Channel {
 
     // Atualiza a coluna Previous State passando o ID do channel
     async prev_state(req, res) {
-        log('Editar Previous State', 'info')
+        log(`Previous State:${req.body.previous_state} Channel ID:${req.body.id}`, 'info')
         let isSucess = false
         let retorno = {}
 

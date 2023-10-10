@@ -10,7 +10,7 @@ module.exports = function email(email, titulo, msg) {
         let transporter = nodemailer.createTransport({
             host: host,
             port: 465,
-            secure: true, // true for 465, false for other ports
+            secure: true,
             auth: { user, pass }
         })
 

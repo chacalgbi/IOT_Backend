@@ -24,6 +24,6 @@
     "nodemon": "^2.0.18",
     "rate-limiter-flexible": "^2.4.1",
     "sequelize": "^6.21.2",
-    "venom-bot": "^4.3.7"
+    "venom-bot": "5.0.16"
   }
 }

@@ -8,6 +8,7 @@ const database = require('./dataBase')
 const {RateLimiterMemory} = require('rate-limiter-flexible')
 const logsTerminal = require('./logsTerminal')
 const email = require('./utils/email')
+const alertaZap = require('./utils/whatsApp')
 var cron = require('node-cron')
 const app = express()
 const limiter = new RateLimiterMemory({ points: 10, duration: 5 })
@@ -18,6 +19,16 @@ async function alertaMail(msg) {
 		.catch((err) => { console.log("ERRO ALERTA REQUISIÇÕES EMAIL", err) })
 }
 
+async function enviar_msg_zap() {
+	await alertaZap("557788188514@c.us", "VENOM funcionando hoje! Versão: 5.0.16")
+	.then((res) => {
+
+	})
+	.catch((err) => {
+		console.log(err)
+	})
+}
+
 async function testBD(){
 	let isConected = false
 
@@ -25,9 +36,10 @@ async function testBD(){
 	.then((res)=>{
 		isConected = true
     	log('Conexão com o Banco de dados estabelecida com sucesso!', 'info')
+			
     })
     .catch((erro)=>{
-    	console.error('Erro ao conectar no Banco de dados:', error)
+    	console.error('Erro ao conectar no Banco de dados:', erro)
     })
 
 	if(isConected){
@@ -38,17 +50,19 @@ async function testBD(){
 		await database.sync()
 		.then((res)=>{
 			log('Tabelas sincronizadas!', 'info')
-			logsTerminal()
 			cron.schedule('*/1 * * * *', () => { globalConf.bloq = false }) // Rodando a TASK a cada 1 minuto.
 		})
 		.catch((erro)=>{
 			console.error('Erro ao sincronizar tabelas!', error)
 		})
 
+		cron.schedule('30 7 * * *', () => {
+			log('ENVIA MENSAGEM PELO ZAP TODO DIA.')
+			enviar_msg_zap()
+		})
+
 	}
 }
-
-
 
 app.use((req, res, next)=> {
 	limiter.consume(req.ip)
@@ -79,5 +93,6 @@ app.use((req, res, next)=> { res.status(404).json({message: 'Esta rota não exis
 
 app.listen(process.env.API_PORT, () => {
     log(`API - IOT Devices - Porta: ${process.env.API_PORT}`, 'temp')
-    testBD()
+		logsTerminal()
+		setTimeout(()=>{ testBD() }, 5000)
 })
