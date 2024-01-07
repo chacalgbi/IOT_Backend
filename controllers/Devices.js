@@ -2,8 +2,8 @@ const API = require('../utils/API')
 const log = require('../utils/log')
 const DeviceModel = require('../models/devices')
 const ClientModel = require('../models/clients')
-const alertaZap = require('../utils/whatsApp')
-const alertaTelegram = require('../utils/telegram')
+//const alertaZap = require('../utils/whatsApp')
+//const alertaTelegram = require('../utils/telegram')
 const alertaMail = require('../utils/email')
 let status = 0
 
@@ -290,17 +290,17 @@ class Device {
         }else{
             const sem_o_Nove = req.body.cel.replaceAt(2, '') // depois da atualização do Venon, só vai sem o 9
             const cel  = String("55" + sem_o_Nove + "@c.us")
-            await alertaZap(cel, req.body.msg)
-            .then((res) => {
-                status = 200
-                isSucess = true
-                retorno.msg = "OK"
-                retorno.payload = res
-            })
-            .catch((err) => {
-                status = 500
-                retorno.msg = err
-            })
+            // await alertaZap(cel, req.body.msg)
+            // .then((res) => {
+            //     status = 200
+            //     isSucess = true
+            //     retorno.msg = "OK"
+            //     retorno.payload = res
+            // })
+            // .catch((err) => {
+            //     status = 500
+            //     retorno.msg = err
+            // })
         }
 
         API(retorno, res, status, isSucess)
@@ -312,16 +312,16 @@ class Device {
         let isSucess = false
         let retorno = {}
 
-        await alertaTelegram(req.body.chat_id, req.body.msg)
-            .then((res) => {
-                status = 200
-                isSucess = true
-                retorno.msg = res
-            })
-            .catch((err) => {
-                status = 500
-                retorno.msg = err
-            })
+        // await alertaTelegram(req.body.chat_id, req.body.msg)
+        //     .then((res) => {
+        //         status = 200
+        //         isSucess = true
+        //         retorno.msg = res
+        //     })
+        //     .catch((err) => {
+        //         status = 500
+        //         retorno.msg = err
+        //     })
 
         API(retorno, res, status, isSucess)
     }

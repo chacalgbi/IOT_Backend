@@ -8,7 +8,7 @@ const database = require('./dataBase')
 const {RateLimiterMemory} = require('rate-limiter-flexible')
 const logsTerminal = require('./logsTerminal')
 const email = require('./utils/email')
-const alertaZap = require('./utils/whatsApp')
+// const alertaZap = require('./utils/whatsApp')
 var cron = require('node-cron')
 const app = express()
 const limiter = new RateLimiterMemory({ points: 10, duration: 5 })
@@ -20,13 +20,13 @@ async function alertaMail(msg) {
 }
 
 async function enviar_msg_zap() {
-	await alertaZap("557788188514@c.us", "VENOM funcionando hoje! Versão: 5.0.16")
-	.then((res) => {
+	// await alertaZap("557788188514@c.us", "VENOM funcionando hoje! Versão: 5.0.16")
+	// .then((res) => {
 
-	})
-	.catch((err) => {
-		console.log(err)
-	})
+	// })
+	// .catch((err) => {
+	// 	console.log(err)
+	// })
 }
 
 async function testBD(){
