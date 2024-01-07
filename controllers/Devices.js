@@ -303,6 +303,10 @@ class Device {
             // })
         }
 
+                status = 200
+                isSucess = true
+                retorno.msg = "OK"
+
         API(retorno, res, status, isSucess)
     }
 
@@ -322,6 +326,10 @@ class Device {
         //         status = 500
         //         retorno.msg = err
         //     })
+
+        status = 200
+        isSucess = true
+        retorno.msg = "OK"
 
         API(retorno, res, status, isSucess)
     }
